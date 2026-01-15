@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { NewsModule } from './modules/news/news.module';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 
@@ -15,6 +17,8 @@ import { ZodValidationPipe } from 'nestjs-zod';
     }),
     AuthModule,
     UsersModule,
+    CategoriesModule,
+    NewsModule,
   ],
   providers: [
     {
