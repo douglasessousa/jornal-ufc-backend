@@ -4,29 +4,26 @@ import { CreateNewsDto, UpdateNewsStatusDto } from './dto/news.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UserRole } from '../../common/types';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { CreateCommentDto } from './dto/news.dto';
 
 @Controller('news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
-
   @UseGuards(JwtAuthGuard)
   @Post()
   @UsePipes(ZodValidationPipe)
   async create(@Body() data: CreateNewsDto, @Req() req: any) {
     return this.newsService.create(data, req.user);
   }
-
   @Get()
   async getPublicNews() {
     return this.newsService.findAllPublished();
   }
-
   @UseGuards(JwtAuthGuard)
   @Get('my-posts')
   async getMyPosts(@Req() req: any) {
     return this.newsService.findByAuthor(req.user.id);
   }
-
   @UseGuards(JwtAuthGuard)
   @Get('pending')
   async getPendingNews(@Req() req: any) {
@@ -35,12 +32,10 @@ export class NewsController {
     }
     return this.newsService.findPending();
   }
-
   @Get(':id')
   async getById(@Param('id', ParseIntPipe) id: number) {
     return this.newsService.findById(id);
   }
-
   @UseGuards(JwtAuthGuard)
   @Patch(':id/status')
   @UsePipes(ZodValidationPipe)
@@ -54,10 +49,37 @@ export class NewsController {
     }
     return this.newsService.updateStatus(id, data.status, req.user.id);
   }
-
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.newsService.delete(id, req.user.id, req.user.role);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/like')
+  async toggleLike(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.newsService.toggleLike(id, req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/check-like')
+  async checkLike(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return { hasLiked: await this.newsService.hasUserLiked(id, req.user.id) };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/comment')
+  @UsePipes(ZodValidationPipe)
+  async addComment(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: CreateCommentDto,
+    @Req() req: any,
+  ) {
+    return this.newsService.addComment(id, req.user.id, data.texto);
+  }
+
+  @Get(':id/comments')
+  async getComments(@Param('id', ParseIntPipe) id: number) {
+    return this.newsService.getComments(id);
   }
 }

@@ -46,7 +46,7 @@ export class News {
   @Column({ nullable: true })
   aprovador_id: number;
 
-  @ManyToOne(() => Category) 
+  @ManyToOne(() => Category)
   @JoinColumn({ name: 'categoria_id' })
   categoria: Category;
 
