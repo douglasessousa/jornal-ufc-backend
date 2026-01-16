@@ -1,7 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { NewsStatus } from '../../../common/types';
-
 export const CreateNewsSchema = z.object({
   titulo: z.string().min(5, 'O título deve ter pelo menos 5 caracteres'),
   resumo: z.string().min(10, 'O resumo deve ter pelo menos 10 caracteres'),
@@ -9,12 +8,16 @@ export const CreateNewsSchema = z.object({
   imagem_url: z.string().url('URL da imagem inválida'),
   categoria_id: z.number().positive('Selecione uma categoria válida'),
 });
-
 export const UpdateNewsStatusSchema = z.object({
   status: z.enum([NewsStatus.PUBLICADO, NewsStatus.REJEITADO], {
     message: "O status deve ser PUBLICADO ou REJEITADO",
   }),
 });
 
+export const CreateCommentSchema = z.object({
+  texto: z.string().min(1, 'O comentário não pode estar vazio').max(500, 'O limite é de 500 caracteres'),
+});
+
+export class CreateCommentDto extends createZodDto(CreateCommentSchema) {}
 export class UpdateNewsStatusDto extends createZodDto(UpdateNewsStatusSchema) {}
 export class CreateNewsDto extends createZodDto(CreateNewsSchema) {}
