@@ -6,6 +6,7 @@ import { CreateNewsDto } from './dto/news.dto';
 import { UserRole, NewsStatus } from '../../common/types';
 import { Like } from '../../database/entities/like.entity';
 import { Comment } from '../../database/entities/comment.entity';
+import { ILike } from 'typeorm';
 
 @Injectable()
 export class NewsService {
@@ -30,13 +31,27 @@ export class NewsService {
     }
     return this.newsRepository.save(news);
   }
-  async findAllPublished() {
-    return this.newsRepository.find({
-      where: { status: NewsStatus.PUBLICADO },
-      relations: ['autor', 'categoria'],
-      order: { data_publicacao: 'DESC' },
-    });
+
+  async findAllPublished(categoryId?: number, search?: string) {
+    const query = this.newsRepository.createQueryBuilder('news')
+      .leftJoinAndSelect('news.autor', 'autor')
+      .leftJoinAndSelect('news.categoria', 'categoria')
+      .where('news.status = :status', { status: NewsStatus.PUBLICADO });
+
+    if (categoryId) {
+      query.andWhere('news.categoria_id = :categoryId', { categoryId });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(news.titulo LIKE :search OR news.resumo LIKE :search OR news.conteudo LIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    return query.orderBy('news.data_publicacao', 'DESC').getMany();
   }
+
   async findById(id: number) {
     const news = await this.newsRepository.findOne({
     where: { id },

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Req, Delete, Param, ParseIntPipe, ForbiddenException, Patch, UsePipes } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Req, Delete, Param, ParseIntPipe, ForbiddenException, Patch, UsePipes, Query } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto, UpdateNewsStatusDto } from './dto/news.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -16,8 +16,12 @@ export class NewsController {
     return this.newsService.create(data, req.user);
   }
   @Get()
-  async getPublicNews() {
-    return this.newsService.findAllPublished();
+  async getPublicNews(
+    @Query('category') categoryId?: string,
+    @Query('search') search?: string,
+  ) {
+    const catId = categoryId ? parseInt(categoryId, 10) : undefined;
+    return this.newsService.findAllPublished(catId, search);
   }
   @UseGuards(JwtAuthGuard)
   @Get('my-posts')
