@@ -60,6 +60,15 @@ export class NewsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Delete('comments/:commentId') 
+  async moderateComment(
+    @Param('commentId', ParseIntPipe) commentId: number,
+    @Req() req: any
+  ) {
+    return this.newsService.moderateComment(commentId, req.user.role);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post(':id/like')
   async toggleLike(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.newsService.toggleLike(id, req.user.id);
