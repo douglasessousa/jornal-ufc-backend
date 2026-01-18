@@ -17,7 +17,7 @@ export class NewsService {
     private likeRepository: Repository<Like>,
     @InjectRepository(Comment)
     private commentRepository: Repository<Comment>,
-  ) {}
+  ) { }
 
   async create(data: CreateNewsDto, user: { id: number; role: UserRole }) {
     const news = this.newsRepository.create({
@@ -54,13 +54,14 @@ export class NewsService {
 
   async findById(id: number) {
     const news = await this.newsRepository.findOne({
-    where: { id },
-    relations: ['autor', 'categoria'],});
+      where: { id },
+      relations: ['autor', 'categoria'],
+    });
     if (!news) {
-    throw new NotFoundException('Notícia não encontrada');
+      throw new NotFoundException('Notícia não encontrada');
     }
     return news;
-  }       
+  }
   async findByAuthor(authorId: number) {
     return this.newsRepository.find({
       where: { autor_id: authorId },
@@ -95,6 +96,22 @@ export class NewsService {
     }
     return this.newsRepository.remove(news);
   }
+
+  async moderateComment(commentId: number, role: UserRole) {
+    if (role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Apenas administradores podem moderar comentários');
+    }
+
+    const comment = await this.commentRepository.findOne({ where: { id: commentId } });
+    if (!comment) {
+      throw new NotFoundException('Comentário não encontrado');
+    }
+
+    comment.texto = 'Comentário removido por violar as regras do portal.';
+
+    return this.commentRepository.save(comment);
+  }
+
 
   async toggleLike(newsId: number, userId: number) {
     const news = await this.findById(newsId);
@@ -137,9 +154,9 @@ export class NewsService {
   }
 
   async hasUserLiked(newsId: number, userId: number) {
-     const count = await this.likeRepository.count({
-       where: { noticia_id: newsId, usuario_id: userId }
-     });
-     return count > 0;
+    const count = await this.likeRepository.count({
+      where: { noticia_id: newsId, usuario_id: userId }
+    });
+    return count > 0;
   }
 }
