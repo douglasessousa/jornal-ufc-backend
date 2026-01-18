@@ -4,9 +4,8 @@ services:
     container_name: jornal-ufc-backend
     ports:
       - "3000:3000"
-    # Comente as linhas de volume temporariamente para garantir que o container use seus próprios arquivos
-    # volumes:
-    #   - .:/app
-    #   - /app/node_modules
-    #   - ./database.sqlite:/app/database.sqlite
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./database.sqlite:/app/database.sqlite
     restart: always

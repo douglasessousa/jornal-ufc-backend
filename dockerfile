@@ -1,4 +1,3 @@
-# Troque node:20-alpine por:
 FROM node:20-slim
 
 # No slim (Debian), o comando de dependências muda:
